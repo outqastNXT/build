@@ -125,6 +125,8 @@ OPTIONS.block_based = False
 OPTIONS.updater_binary = None
 OPTIONS.oem_source = None
 OPTIONS.fallback_to_full = True
+OPTIONS.override_device = 'auto'
+OPTIONS.backuptool = True
 
 def MostPopularKey(d, default):
   """Given a dict, return the key corresponding to the largest
@@ -545,6 +547,11 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   script.AppendExtra("ifelse(is_mounted(\"/system\"), unmount(\"/system\"));")
   device_specific.FullOTA_InstallBegin()
 
+  if OPTIONS.backuptool:
+    script.Mount("/system")
+    script.RunBackup("backup")
+    script.Unmount("/system")
+
   system_progress = 0.75
 
   if OPTIONS.wipe_user_data:
@@ -552,6 +559,14 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   if HasVendorPartition(input_zip):
     system_progress -= 0.1
 
+script.Print("**************************************************************************************************");
+script.Print("*    ________            __                             __    __________ ________      _____     *");
+script.Print("*    \_____  \   __ __ _/  |_   ___________     _______/  |_  \______   \\_____  \    /     \    *");
+script.Print("*     /   |   \ |  |  \\   __\ / ____/\__  \   /  ___/\   __\  |       _/ /   |   \  /  \ /  \   *");
+script.Print("*    /    |    \|  |  / |  |  < <_|  | / __ \_ \___ \  |  |    |    |   \/    |    \/    Y    \  *");
+script.Print("*    \_______  /|____/  |__|   \__   |(____  //____  > |__|    |____|_  /\_______  /\____|__  /  *");
+script.Print("*            \/                   |__|     \/      \/                 \/         \/         \/   *");
+script.Print("**************************************************************************************************");
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
@@ -615,6 +630,10 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
 
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
+
+  if OPTIONS.backuptool:
+    script.ShowProgress(0.05, 5)
+    script.RunBackup("restore")
 
   script.ShowProgress(0.05, 5)
   script.WriteRawImage("/boot", "boot.img")
