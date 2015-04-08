@@ -121,7 +121,7 @@ if OPTIONS.worker_threads == 0:
   OPTIONS.worker_threads = 1
 OPTIONS.two_step = False
 OPTIONS.no_signing = False
-OPTIONS.block_based = False
+OPTIONS.block_based = True
 OPTIONS.updater_binary = None
 OPTIONS.oem_source = None
 OPTIONS.fallback_to_full = True
@@ -557,6 +557,13 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     script.RunBackup("backup")
     script.Unmount("/system")
 
+  script.Print("Flashing AOSP by  NOOBBUILDS...")
+  device_specific.FullOTA_InstallBegin()
+
+  if block_based:
+    common.ZipWriteStr(output_zip, "system/supersu/supersu.zip",
+                   ""+input_zip.read("SYSTEM/supersu/SuperSU.zip"))
+                   
   system_progress = 0.75
 
   if OPTIONS.wipe_user_data:
@@ -635,6 +642,10 @@ script.Print("******************************************************************
 
   common.CheckSize(boot_img.data, "boot.img", OPTIONS.info_dict)
   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
+  
+  if block_based:
+    script.Print("Flashing SuperSU...")
+  script.FlashSuperSU()
 
   if OPTIONS.backuptool:
     script.ShowProgress(0.02, 10)
