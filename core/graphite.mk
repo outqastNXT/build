@@ -13,7 +13,31 @@
 # limitations under the License.
 #
 
-GRAPHITE_FLAGS := -fgraphite,-floop-flatten,-floop-parallelize-all,-ftree-loop-linear,-floop-interchange,-floop-strip-mine,-floop-block
+GRAPHITE_FLAGS +=  \
+		-fgraphite \
+		-fgraphite-identity \
+		-floop-flatten \
+		-floop-parallelize-all \
+		-ftree-loop-linear \
+		-floop-interchange \
+		-floop-strip-mine \
+		-floop-block \
+		-mcpu=cortex-a15 \
+		-mtune=cortex-a15 \
+		-fforce-addr \
+		-funsafe-loop-optimizations \
+		-funroll-loops \
+		-ftree-loop-distribution \
+		-fsection-anchors \
+		-ftree-loop-im \
+		-ftree-loop-ivcanon \
+		-ffunction-sections \
+		-fgcse-las \
+		-fgcse-sm \
+		-fweb \
+		-ffp-contract=fast \
+		-mvectorize-with-neon-quad \
+		-floop-nest-optimize
 
 ifdef LOCAL_CFLAGS
 LOCAL_CFLAGS += $(call cc-option,$(GRAPHITE_FLAGS))
